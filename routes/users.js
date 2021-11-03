@@ -1,6 +1,7 @@
 const express = require('express');
+const passport = require('passport');
 const {
-  createNewUser, findAllUsers, deleteUser, updateUser,
+  createNewUser, findAllUsers, deleteUser, updateUser, findUser, createNewGoogleUser,
 } = require('../controller/users');
 
 const router = express.Router();
@@ -53,6 +54,60 @@ router.post('/api/users/update', async (req, res) => {
   } catch (e) {
     console.log(e);
     res.status(400).send(e);
+  }
+});
+
+// to render templates
+router.get('/api/template/:id', async (req, res) => {
+  const user = await findUser(req.params.id);
+  console.warn({ user });
+  res.render('UserInfo', { name: user.dataValues.name, email: user.dataValues.email });
+});
+
+// to render templates with partials
+router.get('/api/template', async (req, res) => {
+  const user = await findAllUsers();
+  console.warn({ user: user[1].dataValues });
+  res.render('Home', { user });
+});
+
+router.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+
+router.get('/api/callback', async (req, res, next) => {
+  console.log('HEllo ===>>');
+  await passport.authenticate('google', { scope: ['profile', 'email'], failureRedirect: '/login' },
+    async (err, user, info) => {
+      try {
+        console.log({ user }, '======================+ >> > > > > >');
+        if (user) {
+          const newUser = await createNewGoogleUser(user);
+          console.log(newUser, 'New User Is Created ===>>>');
+          req.logIn(newUser, (error) => {
+            if (error) {
+              console.log('error ====== >>> ', error);
+              next(error);
+            }
+          });
+          return res.redirect('/user');
+        }
+        return res.redirect('/error');
+      } catch (e) {
+        console.log(e);
+        return res.redirect('/');
+      }
+    })(req, res, next);
+});
+
+router.get('/user', async (req, res) => {
+  try {
+    console.log('Inside User endpoint !! ', { req: req.session });
+    if (req.session.passport.user) {
+      res.json({ data: req.session.passport.user });
+    } else {
+      res.send('Oops Unauthorized !');
+    }
+  } catch (e) {
+    res.status(404).send('Oh uh, something went wrong');
   }
 });
 

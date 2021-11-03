@@ -4,13 +4,13 @@ module.exports = (sequelize, DataTypes) => {
     content: DataTypes.TEXT,
     userId: DataTypes.INTEGER,
   }, {});
-  Post.associate = function (models) {
-    // associations can be defined here
-    Post.belongsTo(models.User, {
-      foreignKey: 'userId',
-      as: 'author',
-      onDelete: 'CASCADE',
-    });
-  };
+  // Post.associate = function (models) {
+  //   // associations can be defined here
+  //   Post.belongsTo(models.User, {
+  //     foreignKey: 'userId',
+  //     as: 'author',
+  //     onDelete: 'CASCADE',
+  //   });
+  // };
   return Post;
 };
