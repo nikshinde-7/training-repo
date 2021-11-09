@@ -13,14 +13,19 @@
                 <h3 class="card-title text-center">Log in</h3>
                 <div class="card-text">
                     <!-- <form action="http://localhost:3000/api/users/update" method="post"> -->
-                    <form action="http://localhost:3000/api/users/create" method="post">
-                        <div class="form-group">
+                    <!-- <form action="http://localhost:3000/api/users/create" method="post"> -->
+                    <form action="http://localhost:3000/api/insert-dummy" method="post">
+                        <!-- <div class="form-group">
                             <label for="exampleInputEmail1">Name</label>
                             <input type="text" name="name" class="form-control form-control-sm" id="exampleInputEmail1">
-                        </div>
+                        </div> -->
                         <div class="form-group">
                             <label for="exampleInputEmail1">Email address</label>
                             <input type="email" name="email" class="form-control form-control-sm" id="exampleInputEmail1" aria-describedby="emailHelp">
+                        </div>
+                        <div class="form-group">
+                            <label for="exampleInputEmail1">Password</label>
+                            <input type="password" name="password" class="form-control form-control-sm" id="exampleInputEmail1">
                         </div>
                         <button type="submit" class="btn btn-primary btn-block">Sign in</button>
                     </form>
@@ -28,5 +33,8 @@
             </div>
         </div>
         </div>
+        <a href="http://localhost:3000/api/getAllUsers">
+         <button class="btn btn-primary m-5">List All Users</button>
+        </a> 
     </body>
 </html>

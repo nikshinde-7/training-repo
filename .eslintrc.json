@@ -3,6 +3,9 @@
     "rules": {
         "no-unused-vars": "warn",
         "no-console": "off",
-        "func-names": "off"
+        "func-names": "off",
+        "comma-dangle": "off",
+        "operator-linebreak": "warn",
+        "no-else-return": "off"
     }
 }

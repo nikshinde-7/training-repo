@@ -1,7 +1,18 @@
+import errorMessages from '../constants/errorMessages';
+import successMessages from '../constants/successMessages';
+import userList from '../data/UserData.json';
+import { processJsonData } from '../helpers/JsonHelper';
+
 const express = require('express');
 const passport = require('passport');
+
 const {
-  createNewUser, findAllUsers, deleteUser, updateUser, findUser, createNewGoogleUser,
+  createNewUser,
+  findAllUsers,
+  deleteUser,
+  updateUser,
+  findUser,
+  createNewGoogleUser,
 } = require('../controller/users');
 
 const router = express.Router();
@@ -14,7 +25,7 @@ router.post('/api/users/create', async (req, res) => {
     res.status(201).send(newUser);
   } catch (e) {
     console.log(e);
-    res.status(404).send(e);
+    res.status(500).send(e);
   }
 });
 
@@ -25,7 +36,7 @@ router.get('/api/users/get-all', async (req, res) => {
     res.status(201).send(users);
   } catch (e) {
     console.log(e);
-    res.status(400).send(e);
+    res.status(500).send(errorMessages.SOMETHING_WENT_WRONG);
   }
 });
 
@@ -38,7 +49,7 @@ router.post('/api/users/delete', async (req, res) => {
     res.status(201).send({ users });
   } catch (e) {
     console.log(e);
-    res.status(400).send(e);
+    res.status(500).send(errorMessages.SOMETHING_WENT_WRONG);
   }
 });
 
@@ -50,10 +61,10 @@ router.post('/api/users/update', async (req, res) => {
     };
     console.log(req.body);
     updateUser(req.body.email, data);
-    res.status(201).send('Success');
+    res.status(201).send(successMessages.UPDATED_SUCCESS);
   } catch (e) {
     console.log(e);
-    res.status(400).send(e);
+    res.status(500).send(errorMessages.SOMETHING_WENT_WRONG);
   }
 });
 
@@ -61,7 +72,10 @@ router.post('/api/users/update', async (req, res) => {
 router.get('/api/template/:id', async (req, res) => {
   const user = await findUser(req.params.id);
   console.warn({ user });
-  res.render('UserInfo', { name: user.dataValues.name, email: user.dataValues.email });
+  res.render('UserInfo', {
+    name: user.dataValues.name,
+    email: user.dataValues.email,
+  });
 });
 
 // to render templates with partials
@@ -71,17 +85,19 @@ router.get('/api/template', async (req, res) => {
   res.render('Home', { user });
 });
 
-router.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+router.get(
+  '/auth/google',
+  passport.authenticate('google', { scope: ['profile', 'email'] })
+);
 
 router.get('/api/callback', async (req, res, next) => {
-  console.log('HEllo ===>>');
-  await passport.authenticate('google', { scope: ['profile', 'email'], failureRedirect: '/login' },
+  await passport.authenticate(
+    'google',
+    { scope: ['profile', 'email'], failureRedirect: '/login' },
     async (err, user, info) => {
       try {
-        console.log({ user }, '======================+ >> > > > > >');
         if (user) {
           const newUser = await createNewGoogleUser(user);
-          console.log(newUser, 'New User Is Created ===>>>');
           req.logIn(newUser, (error) => {
             if (error) {
               console.log('error ====== >>> ', error);
@@ -95,7 +111,8 @@ router.get('/api/callback', async (req, res, next) => {
         console.log(e);
         return res.redirect('/');
       }
-    })(req, res, next);
+    }
+  )(req, res, next);
 });
 
 router.get('/user', async (req, res) => {
@@ -104,11 +121,25 @@ router.get('/user', async (req, res) => {
     if (req.session.passport.user) {
       res.json({ data: req.session.passport.user });
     } else {
-      res.send('Oops Unauthorized !');
+      res.send(errorMessages.UNAUTHORIZED_USER);
     }
   } catch (e) {
-    res.status(404).send('Oh uh, something went wrong');
+    res.status(500).send(errorMessages.SOMETHING_WENT_WRONG);
   }
+});
+
+router.post('/api/insert-dummy', async (req, res) => {
+  try {
+    const { message } = await processJsonData(req.body);
+    res.send(message);
+  } catch (error) {
+    console.log(error);
+    res.status(500).send(errorMessages.SOMETHING_WENT_WRONG);
+  }
+});
+
+router.get('/api/getAllUsers', async (req, res) => {
+  res.render('ListUsers', { userList });
 });
 
 module.exports = router;
