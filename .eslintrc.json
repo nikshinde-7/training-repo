@@ -6,6 +6,7 @@
         "func-names": "off",
         "comma-dangle": "off",
         "operator-linebreak": "warn",
-        "no-else-return": "off"
+        "no-else-return": "off",
+        "no-plusplus": "warn"
     }
 }
